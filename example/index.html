@@ -8,26 +8,26 @@
     <link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16"/>
     <link rel="stylesheet" href="style.css">
 </head>
-<style>
-    table, th, td {
-        padding: 10px;
-        border: 1px solid black; 
-        border-collapse: collapse;
-    }
-</style>
 
 <body class="wrapper">
+    <div class="toolbar">
+        <img
+            width="500"
+            alt="Customer Experience App - Tickets"
+            src=""
+        />
+        <div class="spacer"></div>
+    </div>
+
     <center>
         <br/>
-        <h3>[Transcript]</h3>
+        <h3 id="dialogTitle" hidden>[Transcript]</h3>
         <h3 id="dialogFromUser"></h3>
         <h3 id="dialogFromAssistant"></h3>
         <br/>
 
         <h4 id="displayMsg"></h4>
         <p id="flightsSearchResult"></p>
-        <!-- <button id="testSearchAPI">Test SearchFlight API</button>
-        <button id="testPurchaseAPI">Test PurchaseFlight API</button> -->
         <br/>
 
         <h3>Ticket Assistant</h3>
@@ -37,6 +37,10 @@
         </p>
         <p><span id="message"></span></p>
     </center>
+    
+    <svg id="clouds" alt="Gray Clouds Background" xmlns="http://www.w3.org/2000/svg" width="2611.084" height="485.677" viewBox="0 0 2611.084 485.677">
+      <path id="Path_39" data-name="Path 39" d="M2379.709,863.793c10-93-77-171-168-149-52-114-225-105-264,15-75,3-140,59-152,133-30,2.83-66.725,9.829-93.5,26.25-26.771-16.421-63.5-23.42-93.5-26.25-12-74-77-130-152-133-39-120-212-129-264-15-54.084-13.075-106.753,9.173-138.488,48.9-31.734-39.726-84.4-61.974-138.487-48.9-52-114-225-105-264,15a162.027,162.027,0,0,0-103.147,43.044c-30.633-45.365-87.1-72.091-145.206-58.044-52-114-225-105-264,15-75,3-140,59-152,133-53,5-127,23-130,83-2,42,35,72,70,86,49,20,106,18,157,5a165.625,165.625,0,0,0,120,0c47,94,178,113,251,33,61.112,8.015,113.854-5.72,150.492-29.764a165.62,165.62,0,0,0,110.861-3.236c47,94,178,113,251,33,31.385,4.116,60.563,2.495,86.487-3.311,25.924,5.806,55.1,7.427,86.488,3.311,73,80,204,61,251-33a165.625,165.625,0,0,0,120,0c51,13,108,15,157-5a147.188,147.188,0,0,0,33.5-18.694,147.217,147.217,0,0,0,33.5,18.694c49,20,106,18,157,5a165.625,165.625,0,0,0,120,0c47,94,178,113,251,33C2446.709,1093.793,2554.709,922.793,2379.709,863.793Z" transform="translate(142.69 -634.312)" fill="#eee"/>
+    </svg>
 
 <script src="https://sdk.amazonaws.com/js/aws-sdk-2.48.0.min.js"></script>
 <script src="../dist/aws-lex-audio.js" type="text/javascript"></script>
@@ -82,6 +86,8 @@
                 waveform.clearCanvas();
             }
         }, async function (data) {
+            
+            document.getElementById('dialogTitle').hidden = false;
 
             document.getElementById('dialogFromUser').innerHTML = 'You: \n' + data.inputTranscript;
             document.getElementById('dialogFromAssistant').innerHTML = 'Response: \n' + data.message;
@@ -233,108 +239,6 @@
         return await response.json();
 
     }
-    
-    // document.getElementById('testSearchAPI').onclick = async function (){
-
-    //     document.getElementById('flightsSearchResult').innerHTML = null;
-        
-    //     try{
-    //         document.getElementById('displayMsg').innerHTML = 'Searching Matched & Available Flights ...';
-    //         const flightResults = await searchFlight('HKG', 'TPE', '2019-10-20', '2019-10-22', '1');
-    //         var offersCount = Object.keys(flightResults.offers).length;
-            
-    //         if (offersCount > 10){
-                
-    //             var table = "<table><tr><th>Options</th>" +
-    //                         "<th>Departing Flight Number</th>" +
-    //                         "<th>Departure Time</th>" +
-    //                         "<th>Arrival Time</th>" +
-    //                         "<th>Returning Flight Number</th>" +
-    //                         "<th>Departure Time</th>" +
-    //                         "<th>Arrival Time</th>" +
-    //                         "<th>Total Fare</th>" +
-    //                         "</tr>";
-                
-    //             offerIds = [];
-    //             offerFares = [];
-
-    //             for (var i = 0; i < 10; i++) {
-    //                 var optionNum = i + 1;
-
-    //                 table += '<tr><td>' + 'Option ' + optionNum.toString() +
-    //                 '</td><td>' + flightResults.offers[i].outbound.segments[0].flightNum +
-    //                 '</td><td>' + flightResults.offers[i].outbound.segments[0].departureTime +
-    //                 '</td><td>' + flightResults.offers[i].outbound.segments[0].arrivalTime +
-    //                 '</td><td>' + flightResults.offers[i].inbound.segments[0].flightNum +
-    //                 '</td><td>' + flightResults.offers[i].inbound.segments[0].departureTime +
-    //                 '</td><td>' + flightResults.offers[i].inbound.segments[0].arrivalTime +
-    //                 '</td><td>' + flightResults.offers[i].totalAmount + '</td></tr>';
-
-    //                 offerIds.push(flightResults.offers[i].offerId);
-    //                 offerFares.push(flightResults.offers[i].totalAmount);
-    //             }
-
-    //             table += "</table>";
-    //             document.getElementById("flightsSearchResult").innerHTML = table;
-    //             document.getElementById('displayMsg').innerHTML = 'Here are the flight options provided per your request:';
-
-    //             console.log(offerIds);
-    //             console.log(offerFares);
-
-    //         }
-    //         else{
-    //             document.getElementById('displayMsg').innerHTML = 'Sorry, no matched flights found. Please try other dates or destinations.';
-    //             document.getElementById('flightsSearchResult').innerHTML = null;
-    //         }
-    //     }catch (error) {
-    //         console.error(error);
-    //     }
-    // }
-
-    // document.getElementById('testPurchaseAPI').onclick = async function (){
-
-    //     console.log(offerIds);
-    //     console.log(offerFares);
-        
-    //     try{
-    //         document.getElementById('displayMsg').innerHTML = 'Booking Flights ... It may take 10-30 seconds.';
-            
-    //         var optionNumber = 1;
-
-    //         const purchaseResults = await bookFlight({
-    //             "offerId": offerIds[optionNumber],
-    //             "numPax": 1,
-    //             "amount": offerFares[optionNumber],
-    //             "paxDetails": [
-    //                 {
-    //                     "countryDialingCode": "852",
-    //                     "phoneNumber": "88888888",
-    //                     "emailAddress": "demouser@demo.com",
-    //                     "titleName": "MR",
-    //                     "givenName": "Demo",
-    //                     "familyName": "Man",
-    //                     "birthdate": "1990-01-01"
-    //                 }
-    //             ]
-    //         });
-            
-    //         console.log(purchaseResults);
-
-    //         var ticketsCount = Object.keys(purchaseResults.tickets).length;
-            
-    //         if (ticketsCount > 0){
-    //             var BookingRef = 'Booking Reference: ' + purchaseResults.bookingRef;
-    //             var TicketNum = 'Ticket Number: ' + purchaseResults.tickets[0].ticketNumber;
-                     
-    //             document.getElementById('displayMsg').innerHTML = BookingRef + " || " + TicketNum;
-    //         }
-    //         else{
-    //             document.getElementById('displayMsg').innerHTML = 'Sorry, the purchase is not successful';
-    //         }
-    //     }catch (error) {
-    //         console.error(error);
-    //     }
-    // }
 
 </script>
 </body>

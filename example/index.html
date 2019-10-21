@@ -21,7 +21,11 @@
 
     <center>
         <br/>
-        <h3 id="dialogTitle" hidden>[Transcript]</h3>
+        <p>Please fill in information below:</p>
+        <input placeholder="Your First Name" id="firstName"></input>
+        <input placeholder="Your Last Name" id="lastName"></input>
+        <br/>
+        <h3 id="dialogTitle" hidden></h3>
         <h3 id="dialogFromUser"></h3>
         <h3 id="dialogFromAssistant"></h3>
         <br/>
@@ -54,28 +58,38 @@
     var offerFares = [];
 
     // Input the identity pool id you received from AWS Cognito below
-    const cognitoPoolId = "{insert-cognito-identity-pool-id}";
+    //const cognitoPoolId = "{insert-cognito-identity-pool-id}";
+    const cognitoPoolId = "us-east-1:ab3b1b17-0d0a-4dad-b93b-23e8dedef0b0";
     // Input the API key for making Cathay Pacific API calls
-    const apiKey = "{insert-cathay-pacific-api-key}";
+    //const apiKey = "{insert-cathay-pacific-api-key}";
+    const apiKey = "mP7WtIx8eiscnk3aHnHAYC3voaWsWxx2";
 
     message.textContent = 'Press to Start Conversations';
 
     // Capture user vocal through device microphone, and send audio to Amazon Lex to initiate chats 
     document.getElementById('audio-control').onclick = function () {
-
-        //Input the identity pool id you received from AWS Cognito below
-        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-            IdentityPoolId: cognitoPoolId,
-        });
-        AWS.config.region = 'us-east-1';
         
-        config = {silenceDetection: true,
-            silenceDetectionConfig: {
-                time: 2000,
-                amplitude: 0.2
-            },
-            lexConfig: { botName: "CustomerExperience" }
-        };
+        if(document.getElementById('firstName').value == "" || document.getElementById('lastName').value == ""){
+            document.getElementById('dialogTitle').hidden = false;
+            document.getElementById('dialogTitle').innerHTML = "Please insert your first name and last name for our record before the process begin.";
+        }
+        else{
+            document.getElementById('dialogTitle').hidden = true;
+            document.getElementById('dialogTitle').innerHTML = "Transcript:";
+
+            //Input the identity pool id you received from AWS Cognito below
+            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+                IdentityPoolId: cognitoPoolId,
+            });
+            AWS.config.region = 'us-east-1';
+        
+            config = {silenceDetection: true,
+                silenceDetectionConfig: {
+                    time: 2000,
+                    amplitude: 0.2
+                },
+                lexConfig: { botName: "CustomerExperience" }
+            };
 
         conversation = new LexAudio.conversation(config, function (state) {
             message.textContent = state + '...';
@@ -86,8 +100,6 @@
                 waveform.clearCanvas();
             }
         }, async function (data) {
-            
-            document.getElementById('dialogTitle').hidden = false;
 
             document.getElementById('dialogFromUser').innerHTML = 'You: \n' + data.inputTranscript;
             document.getElementById('dialogFromAssistant').innerHTML = 'Response: \n' + data.message;
@@ -151,6 +163,8 @@
                 }
                 else if (data.intentName === 'PurchaseTickets'){
                     console.log(data.slots.option);
+                    console.log(document.getElementById('firstName').value);
+                    console.log(document.getElementById('lastName').value);
                     if (data.slots.option < 11){
                         var optionNumber = data.slots.option;
                         optionNumber -= 1;
@@ -168,8 +182,8 @@
                                     "phoneNumber": "88888888",
                                     "emailAddress": "demouser@demo.com",
                                     "titleName": "MR",
-                                    "givenName": "Demo",
-                                    "familyName": "Man",
+                                    "givenName": document.getElementById('firstName').value,
+                                    "familyName": document.getElementById('lastName').value,
                                     "birthdate": "1990-01-01"
                                 }
                             ]
@@ -183,7 +197,7 @@
                             var BookingRef = 'Booking Reference: ' + purchaseResults.bookingRef;
                             var TicketNum = 'Ticket Number: ' + purchaseResults.tickets[0].ticketNumber;
                      
-                            document.getElementById('displayMsg').innerHTML = BookingRef + " || " + TicketNum;
+                            document.getElementById('displayMsg').innerHTML = "<table><tr><td>" + BookingRef + " || " + TicketNum + "</td></tr></table>";
                         }
                         else{
                             document.getElementById('displayMsg').innerHTML = 'Sorry, the purchase is not successful';
@@ -193,6 +207,9 @@
                     }
                 }           
             }
+
+            document.getElementById('dialogTitle').hidden = false;
+
         }, function (error) {
             message.textContent = error;
         }, function (timeDomain, bufferLength) {
@@ -239,6 +256,9 @@
         return await response.json();
 
     }
+        }
+
+
 
 </script>
 </body>

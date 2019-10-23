@@ -22,13 +22,25 @@
     <center>
         <br/>
         <p>Please fill in information below:</p>
+        <input placeholder="Your Prefix" id="prefix"></input>
         <input placeholder="Your First Name" id="firstName"></input>
         <input placeholder="Your Last Name" id="lastName"></input>
         <br/>
-        <h3 id="dialogTitle" hidden></h3>
+    </center>
+
+    <br/>
+    <hgroup id="userDialogBox" class="speech-bubble-user" hidden>
+        <h5>You:</h5>
         <h3 id="dialogFromUser"></h3>
+    </hgroup>
+    <br/>
+    <hgroup id="assistantDialogBox" class="speech-bubble-assistant" hidden>
+        <h5>Assistant:</h5>
         <h3 id="dialogFromAssistant"></h3>
-        <br/>
+    </hgroup>
+    <br/>
+        
+    <center>
 
         <h4 id="displayMsg"></h4>
         <p id="flightsSearchResult"></p>
@@ -58,24 +70,22 @@
     var offerFares = [];
 
     // Input the identity pool id you received from AWS Cognito below
-    const cognitoPoolId = "{insert-cognito-identity-pool-id}";
+    const cognitoPoolId = "us-east-1:ab3b1b17-0d0a-4dad-b93b-23e8dedef0b0";
     // Input the API key for making Cathay Pacific API calls
-    const apiKey = "{insert-cathay-pacific-api-key}";
+    const apiKey = "mP7WtIx8eiscnk3aHnHAYC3voaWsWxx2";
 
     message.textContent = 'Press to Start Conversations';
 
     // Capture user vocal through device microphone, and send audio to Amazon Lex to initiate chats 
     document.getElementById('audio-control').onclick = function () {
         
-        if(document.getElementById('firstName').value == "" || document.getElementById('lastName').value == ""){
-            document.getElementById('dialogTitle').hidden = false;
-            document.getElementById('dialogTitle').innerHTML = "Please insert your first name and last name for our record before the process begin.";
+        if(document.getElementById('prefix').value == "" || document.getElementById('firstName').value == "" || document.getElementById('lastName').value == ""){
+            window.alert("Please insert your prefix, your first name and last name for our record before the process begin.");
         }
         else{
-            document.getElementById('dialogTitle').hidden = true;
-            document.getElementById('dialogTitle').innerHTML = "Transcript:";
+            document.getElementById('userDialogBox').hidden = false;
+            document.getElementById('assistantDialogBox').hidden = false;
 
-            //Input the identity pool id you received from AWS Cognito below
             AWS.config.credentials = new AWS.CognitoIdentityCredentials({
                 IdentityPoolId: cognitoPoolId,
             });
@@ -84,6 +94,7 @@
             config = {silenceDetection: true,
                 silenceDetectionConfig: {
                     time: 2000,
+                    // A threshold value (between 1 and -1). Above the amplitude threshold value is considered "noise". Below the amplitude threshold value is considered "silence".
                     amplitude: 0.2
                 },
                 lexConfig: { botName: "CustomerExperience" }
@@ -99,8 +110,8 @@
             }
         }, async function (data) {
 
-            document.getElementById('dialogFromUser').innerHTML = 'You: \n' + data.inputTranscript;
-            document.getElementById('dialogFromAssistant').innerHTML = 'Response: \n' + data.message;
+            document.getElementById('dialogFromUser').innerHTML = data.inputTranscript;
+            document.getElementById('dialogFromAssistant').innerHTML = data.message;
             console.log('Transcript: ', data.inputTranscript, ", Response: ", data.message);
             console.log(data);
 
@@ -173,13 +184,13 @@
                             "offerId": offerIds[optionNumber],
                             "numPax": 1,
                             "amount": offerFares[optionNumber],
-                            //Optional: Input your profile name
+                            //Optional: Modify your own profile or add code to acpture more information from users
                             "paxDetails": [
                                 {
                                     "countryDialingCode": "852",
                                     "phoneNumber": "88888888",
                                     "emailAddress": "demouser@demo.com",
-                                    "titleName": "MR",
+                                    "titleName": document.getElementById('prefix').value.toUpperCase(),
                                     "givenName": document.getElementById('firstName').value,
                                     "familyName": document.getElementById('lastName').value,
                                     "birthdate": "1990-01-01"
@@ -206,8 +217,6 @@
                 }           
             }
 
-            document.getElementById('dialogTitle').hidden = false;
-
         }, function (error) {
             message.textContent = error;
         }, function (timeDomain, bufferLength) {
@@ -223,7 +232,6 @@
         url = "https://t0.api.osc1.ct1.cathaypacific.com/hackathon-apigw/api/v1/flightSearch?" + "origin=" + origin + "&destination=" + destination + "&departureDate=" + departureDate + "&returnDate=" + returnDate + "&cabin=" + "Y" + "&numPax=" + numPax;
         console.log(url);
 
-        // Input the API key for making Cathay Pacific API calls
         const response = await fetch(url, {
             method: 'GET',
             headers: {
@@ -241,7 +249,6 @@
         url = "https://t0.api.osc1.ct1.cathaypacific.com/hackathon-apigw/api/v1/ticketPurchase";
         console.log(url);
 
-        // Input the API key for making Cathay Pacific API calls
         const response = await fetch(url, {
             method: 'POST',
             headers: {

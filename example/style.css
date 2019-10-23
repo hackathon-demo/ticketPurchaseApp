@@ -52,6 +52,59 @@
         margin-left: -50px;
         text-align: center;
     }
+
+    .speech-bubble-user {
+        position: relative; 
+        background: #343938;
+        border-radius: .4em;
+        color: #fff;
+        margin-left: 25%;
+        margin-right: 45%;
+        padding:10px;
+        text-align: left;
+    }
+    
+    .speech-bubble-user:after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 0;
+        height: 0;
+        border: 10px solid transparent;
+        border-right-color: #343938;
+        border-left: 0;
+        border-bottom: 0;
+        margin-top: -5px;
+        margin-left: -10px;
+    }
+
+    .speech-bubble-assistant {
+        position: relative;
+        background: #006B6E;
+        border-radius: .4em;
+        color: #fff;
+        margin-left: 45%;
+        margin-right: 25%;
+        padding: 10px;
+        padding:10px;
+        text-align: right;
+    }
+    
+    .speech-bubble-assistant:after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        width: 0;
+        height: 0;
+        border: 10px solid transparent;
+        border-left-color: #006B6E;
+        border-right: 0;
+        border-bottom: 0;
+        margin-top: -5px;
+        margin-right: -10px;
+    }
     
     body {
         font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
@@ -73,16 +126,33 @@
         z-index: -1;
     }
     
-    table, th, td {
+    table{
         padding: 10px;
         border: 1px solid black; 
         border-collapse: collapse;
     }
+
+    td, th {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
     
+    th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #006B6E;
+        color: white;
+     }
+      
+    tr:nth-child(even){background-color: #f2f2f2;}
+    tr:nth-child(odd){background-color: #fff;}
     tr:first-child{
-        background: #006B6E;
+        background-color: #006B6E;
         color: white;
     }
+      
+    tr:hover {background-color: #ddd;}
     
     svg#clouds {
         position: fixed;

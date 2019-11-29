@@ -59,6 +59,7 @@
     </svg>
 
 <script src="https://sdk.amazonaws.com/js/aws-sdk-2.48.0.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="../dist/aws-lex-audio.js" type="text/javascript"></script>
 <script src="renderer.js" type="text/javascript"></script>
 <script type="text/javascript">
@@ -66,16 +67,16 @@
     var waveform = window.Waveform();
     var message = document.getElementById('message');
     var config, conversation;
-    var offerIds = [];
-    var offerFares = [];
+    var flightResults = JSON;
+    var route = "";
+    var departureDate = "";
+    var returnDate = "";
 
     // Input the identity pool id you received from AWS Cognito below
-    const cognitoPoolId = "{insert-your-pood-id-here}";
-    // Input the API key for making Cathay Pacific API calls
-    const apiKey = "{insert-the-api-key-here}";
+    const cognitoPoolId = "us-east-1:ab3b1b17-0d0a-4dad-b93b-23e8dedef0b0";
 
     message.textContent = 'Press to Start Conversations';
-
+    
     // Capture user vocal through device microphone, and send audio to Amazon Lex to initiate chats 
     document.getElementById('audio-control').onclick = function () {
         
@@ -93,7 +94,7 @@
         
             config = {silenceDetection: true,
                 silenceDetectionConfig: {
-                    time: 2000,
+                    time: 3000,
                     // A threshold value (between 1 and -1). Above the amplitude threshold value is considered "noise". Below the amplitude threshold value is considered "silence".
                     amplitude: 0.2
                 },
@@ -121,13 +122,21 @@
                 
                 if(data.intentName === 'SearchFlights'){
                     try{
+
                         console.log('Flow to Search Flight API');
+                        
                         document.getElementById('displayMsg').innerHTML = 'Searching Matched & Available Flights ...';
-                        const flightResults = await searchFlight(data.slots.origin, data.slots.destination, data.slots.departureDate, data.slots.returnDate, data.slots.numPax);
+                        
+                        await searchFlight()
                         var offersCount = Object.keys(flightResults.offers).length;
-                        if (offersCount > 10){
+                        if (offersCount > 0){
+
+                            route = data.slots.origin + " <-> " + data.slots.destination;
+                            departureDate = data.slots.departureDate;
+                            returnDate = data.slots.returnDate;
                 
-                            var table = "<table><tr><th>Options</th>" +
+                            var table = "<h2 style=\"color: #006B6E\">Route: " + route + "</h2>" +
+                            "<table><tr><th>Options</th>" +
                             "<th>Departing Flight Number</th>" +
                             "<th>Departure Time</th>" +
                             "<th>Arrival Time</th>" +
@@ -136,31 +145,24 @@
                             "<th>Arrival Time</th>" +
                             "<th>Total Fare</th>" +
                             "</tr>";
-                
-                            offerIds = [];
-                            offerFares = [];
 
-                            for (var i = 0; i < 10; i++) {
+                            for (var i = 0; i < offersCount; i++) {
+
                                 var optionNum = i + 1;
 
                                 table += '<tr><td>' + 'Option ' + optionNum.toString() +
                                 '</td><td>' + flightResults.offers[i].outbound.segments[0].flightNum +
-                                '</td><td>' + flightResults.offers[i].outbound.segments[0].departureTime +
-                                '</td><td>' + flightResults.offers[i].outbound.segments[0].arrivalTime +
+                                '</td><td>' + data.slots.departureDate + " " + flightResults.offers[i].outbound.segments[0].departureTime +
+                                '</td><td>' + data.slots.departureDate + " " + flightResults.offers[i].outbound.segments[0].arrivalTime +
                                 '</td><td>' + flightResults.offers[i].inbound.segments[0].flightNum +
-                                '</td><td>' + flightResults.offers[i].inbound.segments[0].departureTime +
-                                '</td><td>' + flightResults.offers[i].inbound.segments[0].arrivalTime +
-                                '</td><td>' + flightResults.offers[i].totalAmount + '</td></tr>';
+                                '</td><td>' + data.slots.returnDate + " " + " " + flightResults.offers[i].inbound.segments[0].departureTime +
+                                '</td><td>' + data.slots.returnDate + " " + " " + flightResults.offers[i].inbound.segments[0].arrivalTime +
+                                '</td><td>' + "$" + flightResults.offers[i].totalAmount + '</td></tr>';
 
-                                offerIds.push(flightResults.offers[i].offerId);
-                                offerFares.push(flightResults.offers[i].totalAmount);
                             }
                             table += "</table>";
                             document.getElementById("flightsSearchResult").innerHTML = table;
                             document.getElementById('displayMsg').innerHTML = 'Here are the flight options provided per your request:';
-
-                            console.log(offerIds);
-                            console.log(offerFares);
 
                         }else{
                             document.getElementById('displayMsg').innerHTML = 'Sorry, no matched flights found. Please try other dates or destinations.';
@@ -171,42 +173,27 @@
                     }
                 }
                 else if (data.intentName === 'PurchaseTickets'){
-                    console.log(data.slots.option);
-                    console.log(document.getElementById('firstName').value);
-                    console.log(document.getElementById('lastName').value);
-                    if (data.slots.option < 11){
-                        var optionNumber = data.slots.option;
-                        optionNumber -= 1;
-                    }
-                    try{
-                        document.getElementById('displayMsg').innerHTML = 'Booking Flights ... It may take 10-30 seconds.';
-                        const purchaseResults = await bookFlight({
-                            "offerId": offerIds[optionNumber],
-                            "numPax": 1,
-                            "amount": offerFares[optionNumber],
-                            //Optional: Modify your own profile or add code to acpture more information from users
-                            "paxDetails": [
-                                {
-                                    "countryDialingCode": "852",
-                                    "phoneNumber": "88888888",
-                                    "emailAddress": "demouser@demo.com",
-                                    "titleName": document.getElementById('prefix').value.toUpperCase(),
-                                    "givenName": document.getElementById('firstName').value,
-                                    "familyName": document.getElementById('lastName').value,
-                                    "birthdate": "1990-01-01"
-                                }
-                            ]
-                        });
-            
-                        console.log(purchaseResults);
 
-                        var ticketsCount = Object.keys(purchaseResults.tickets).length;
-            
-                        if (ticketsCount > 0){
-                            var BookingRef = 'Booking Reference: ' + purchaseResults.bookingRef;
-                            var TicketNum = 'Ticket Number: ' + purchaseResults.tickets[0].ticketNumber;
-                     
-                            document.getElementById('displayMsg').innerHTML = "<table><tr><td>" + BookingRef + " || " + TicketNum + "</td></tr></table>";
+                    try{
+                        document.getElementById('displayMsg').innerHTML = 'Booking Flights ...';
+
+                        var passengerName = document.getElementById('prefix').value.toUpperCase() + " " + document.getElementById('firstName').value + " " + document.getElementById('lastName').value;
+                        var offersCount = Object.keys(flightResults.offers).length
+                        if (offersCount > 0){
+                            var i = data.slots.option - 1;
+                            var TicketNum = Math.floor(100000 + Math.random() * 900000).toString();
+                            document.getElementById('displayMsg').innerHTML = "<h2 style=\"color: #006B6E\">Booking Details</h2>" +
+                                                                            "<table><tr><td>Ticket Number</td><td>" + TicketNum + "</td></tr>" + 
+                                                                            "<tr><td>Passenger Name</td><td>" + passengerName + "</td></tr>" +
+                                                                            "<tr><td>Route</td><td>" + route + "</td></tr>" +
+                                                                            "<tr><td>Departure Flight Number</td><td>" + flightResults.offers[i].outbound.segments[0].flightNum + "</td></tr>" +
+                                                                            "<tr><td>Departure Date</td><td>" + departureDate + "</td></tr>" +
+                                                                            "<tr><td>Departure Flight Duration/td><td>" + flightResults.offers[i].outbound.segments[0].departureTime + " - " + flightResults.offers[i].outbound.segments[0].arrivalTime + "</td></tr>" +
+                                                                            "<tr><td>Return Flight Number</td><td>" + flightResults.offers[i].inbound.segments[0].flightNum + "</td></tr>" +
+                                                                            "<tr><td>Return Date</td><td>" + returnDate + "</td></tr>" +
+                                                                            "<tr><td>Return Flight Duration</td><td>" + flightResults.offers[i].inbound.segments[0].departureTime + " - " + flightResults.offers[i].inbound.segments[0].arrivalTime + "</td></tr>" +
+                                                                            "<tr><td>Fare Paid</td><td>" + flightResults.offers[i].totalAmount + "</td></tr>" +
+                                                                            "</table>";
                         }
                         else{
                             document.getElementById('displayMsg').innerHTML = 'Sorry, the purchase is not successful';
@@ -225,43 +212,35 @@
         conversation.advanceConversation();
     };
 
-    // Call Search flight API
-    async function searchFlight(origin, destination, departureDate, returnDate, numPax){
-        console.log(origin, destination, departureDate, returnDate, numPax);
-
-        url = "https://t0.api.osc1.ct1.cathaypacific.com/hackathon-apigw/api/v1/flightSearch?" + "origin=" + origin + "&destination=" + destination + "&departureDate=" + departureDate + "&returnDate=" + returnDate + "&cabin=" + "Y" + "&numPax=" + numPax;
-        console.log(url);
-
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'apikey': apiKey
-            }
-        });
-
-        return await response.json();
-
+    async function searchFlight(){
+        url = 'https://hksharabledocs.s3.ap-east-1.amazonaws.com/flightOffers.json';
+        await axios.get(url)
+        .then(response => {
+            flightResults = response.data;
+            console.log(flightResults);
+        })
+        .catch(error => console.error(error))
     }
 
-    // Call Purchase Ticket API
-    async function bookFlight(body){
 
-        url = "https://t0.api.osc1.ct1.cathaypacific.com/hackathon-apigw/api/v1/ticketPurchase";
-        console.log(url);
+    // Implement your own API call if you have a backend database to map the data with
+    
+    // async function searchFlight(origin, destination, departureDate, returnDate, numPax){
+    //     console.log(origin, destination, departureDate, returnDate, numPax);
+    //     url = "https://your-own-backend.com/api/v1/flightSearch?" + "origin=" + origin + "&destination=" + destination + "&departureDate=" + departureDate + "&returnDate=" + returnDate + "&cabin=" + "Y" + "&numPax=" + numPax;
+    //     console.log(url);
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'apikey': apiKey,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body)
-        });
+    //     const response = await fetch(url, {
+    //         method: 'GET',
+    //         headers: {
+    //             'apikey': apiKey
+    //         }
+    //     });
 
-        return await response.json();
+    //     return await response.json();
 
-    }
-        }
+    // }
+}
 
 
 

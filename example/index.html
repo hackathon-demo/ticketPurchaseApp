@@ -73,7 +73,7 @@
     var returnDate = "";
 
     // Input the identity pool id you received from AWS Cognito below
-    const cognitoPoolId = "{Your-Cognito-Identity-Pool-ID}";
+    const cognitoPoolId = "{insert-your-cognito-id-here}";
 
     message.textContent = 'Press to Start Conversations';
     
@@ -213,7 +213,8 @@
     };
 
     async function searchFlight(){
-        url = 'https://hksharabledocs.s3.ap-east-1.amazonaws.com/flightOffers.json';
+        // mock an api call with a static json file here
+        url = 'https://raw.githubusercontent.com/hackathon-demo/ticketPurchaseApp/master/example/flightOffers.json';
         await axios.get(url)
         .then(response => {
             flightResults = response.data;

@@ -74,7 +74,7 @@ for your enquiry) Please note you can as well pass the collected slots
 value to a Lambda function if your response would need some logic to
 process before passing back to the user.
 
-![](img/onFulFillment.png)
+![](img/onFulfillment.png)
 
 **\[Important\]** When all required fields have been inputted, remember
 to click "Save intent", otherwise you will lose all input.
@@ -107,6 +107,7 @@ of your current version before publishing
 
 ![](img/publishBot.png)
 
+
 ## Part 2. Getting the Amazon Cognito Identity Pool Identifier
 
 For simplicity, the example uses an anonymous Amazon Cognito identity pool to provide unauthenticated access to the Amazon APIs. This might be suitable for your needs. For example, you can use unauthenticated access to provide free, or trial, access to your website before users sign up.
@@ -117,29 +118,25 @@ The following procedure shows how to create an identity pool that enables access
 
 To get the identity pool identifier:
 
-1.  Open the Amazon Cognito
-    [console](https://console.aws.amazon.com/cognito/federated).
+1.  Open the Amazon Cognito [console](https://console.aws.amazon.com/cognito/federated).
 
 2.  Choose Create new identity pool.
 
-> ![](img/cognitoConsole.png)
+![](img/cognitoConsole.png)
 
-3.  For Identity pool name, type a name for your identity pool
-    (e.g. Demo-Id Pool)
+3.  For Identity pool name, type a name for your identity pool (e.g. Demo-Id Pool)
 
 4.  In **Unauthenticated identites**, choose **Enable access to unauthenticated identities**.
 
 5.  Choose **Create Pool**.
 
-6.  Choose **View Details**, and note the role name for unauthenticated
-    identities.
+6.  Choose **View Details**, and note the role name for unauthenticated identities.
 
 7.  Choose **Allow**.
 
 8.  In **Platform**, choose **JavaScript**.
 
-9.  In **Get AWS Credentials**, note the values of *Identity pool
-    identifier (Id)* and *region* that are shown in the code snippet.
+9.  In **Get AWS Credentials**, note the values of *Identity pool identifier (Id)* and *region* that are shown in the code snippet.
 
 ![](img/cognitoScriptSample.png)
 
@@ -161,7 +158,8 @@ To get the identity pool identifier:
 
 18. Go back to the role summary and see if the policies are there.
 
-> ![](img/rolePolicies.png)
+![](img/rolePolicies.png)
+
 
 ## Part 3. Develop a Web App for Ticket Purchase
 
@@ -175,10 +173,7 @@ Provide a name to the environment in step 1, and configure the values in step 2 
 ![](img/cloud9Config.png)
 
 Once the creation is successful, you may run below command line to download the sample project in the terminal provided by Cloud 9:
-
-+---------------------------------------------------------------------+
-| git clone <https://github.com/hackathon-demo/ticketPurchaseApp.git> | |
-+---------------------------------------------------------------------+
+**git clone https://github.com/hackathon-demo/ticketPurchaseApp.git**
 
 Then you can start to study and edit the code.
 
@@ -217,42 +212,37 @@ extracted.
 Here to highlights different parts of the code that makes this demo
 work:
 
-1.  Customize the time length of silence before Lex sending out the audio by modifying the attribute value for "time" in ms, and the amplitude level to distinguish noise from the recording, through a threshold value from 1 to -1
+**1.  Customize the time length of silence before Lex sending out the audio by modifying the attribute value for "time" in ms, and the amplitude level to distinguish noise from the recording, through a threshold value from 1 to -1**
 
 ![](img/codeLexConfig.png)
 
 Also be aware that for "lexConfig" (line 101), remember to make sure the bot name is the same as the one you defined in Part 1 earlier.
 
-2.  Through the response back from Lex (defined as "data" from line 112), the application can be developed to respond by different attributes.
+**2.  Through the response back from Lex (defined as "data" from line 112), the application can be developed to respond by different attributes.**
 
 ![](img/codeData.png)
-    **data.inputTranscript (line 114):**\
-    The transcribed sentence from the user\
-    \
-    **data.message (line 115):**\
-    The responded message from Lex according to the model trained from
-    Part 1 of this sample project\
-    \
-    **data.dialogState (line 119):**\
-    Refers to the state of the dialog, for example here, "Fulfilled"
-    means it has captured all the required slots value\
-    \
-    **data.intentName (line 123):**\
-    The intent of the dialog detected by Lex\
-    \
-    **data.slots.destination/departureDate/returnDate/... (line
-    132-134):**\
-    To extract the slots values captured from the dialog
 
-3.  The API being called for now is just being mocked by returning a static JSON file (line 213-222)
+data.inputTranscript (line 114):
+*The transcribed sentence from the user*
 
-> ![](img/codeMockAPI.png)
-> \
-> Line 227-239 provides a sample usage of an API call that in case you
-> have an authentic backend that can query flight schedules with the
-> collected data from Lex (or add in your customization to collect
-> more), this could be a sample for you to get the response back.
+data.message (line 115):
+*The responded message from Lex according to the model trained from Part 1 of this sample project*
 
-In summary, this sample focus on the usage of
+data.dialogState (line 119):
+*Refers to the state of the dialog, for example here, "Fulfilled" means it has captured all the required slots value*
 
-\-\--The End\-\--
+data.intentName (line 123):
+*The intent of the dialog detected by Lex*
+
+data.slots.destination/departureDate/returnDate... (line 132-134):
+*To extract the slots values captured from the dialog*
+
+**3.  The API being called for now is just being mocked by returning a static JSON file (line 213-222)**
+
+![](img/codeMockAPI.png)
+
+Line 227-239 provides a sample usage of an API call that in case you have an authentic backend that can query flight schedules with the collected data from Lex (or add in your customization to collect more), this could be a sample for you to get the response back.
+
+
+
+The End.

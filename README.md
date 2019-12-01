@@ -1,93 +1,71 @@
-Using Lex to Query and Book Flights
------------------------------------
+# Using Lex to Query and Book Flights
 
 This sample application, that let users to query and book flights vocally, is built based on <https://github.com/awslabs/aws-lex-browser-audio-capture>, a simple webpage written in html & javascript.
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-![](media/image1.png){width="5.759615048118985in" height="4.321227034120735in"}
--------------------------------------------------------------------------------
+![](img/appPreview.png)
 
 This sample will walk you through:
-----------------------------------
 
 1.  Using Lex on AWS console to train a conversation model
-    ------------------------------------------------------
 
 2.  Register AWS Cognito Identity Pool for using Lex in your application
-    --------------------------------------------------------------------
 
 3.  Spotlights of where the application sample code works with Lex
-    --------------------------------------------------------------
 
-Part 1. Building a Chat Bot with Amazon Lex
--------------------------------------------
+## Part 1. Building a Chat Bot with Amazon Lex
 
 Login to the AWS Console:
 
 <https://aws.amazon.com/console/>
 
-Search for Amazon Lex in the "Find Services" field
+Search for Amazon Lex in the "Find Services" field (This sample code is developed using US East - N.Virginia region, if you prefer other regions, you might need to customize the sample code later)
 
-![](media/image2.png){width="6.263888888888889in" height="3.89375in"}
-
-Select Region as US East (N.Virginia)
-
-![](media/image3.tiff){width="4.578431758530184in"
-height="2.2247528433945756in"}
+![](img/searchingLex.png)
 
 Select "Create" to create a new Bot
 
-![](media/image4.tiff){width="4.45097987751531in"
-height="1.3391666666666666in"}
+![](img/lexConsole.png)
 
-Select "Custom bot", and give your bot a name (only letters, number and
-"\_" is allowed). Also select an output voice that you prefer, you may
+Select "Custom bot", and give your bot a name. Also select an output voice that you prefer, you may
 listen to the voice but providing a sample sentence. Then input "5 min"
 for Session timeout and "No" for COPPA. Confirm all the input has been
 filled in then can create the bot.
 
-![](media/image5.png){width="4.508222878390201in"
-height="4.029411636045494in"}
+![](img/createBot.png)
 
 Now we need to create some intents
 
-![](media/image6.png){width="6.263888888888889in"
-height="3.002083333333333in"}
+![](img/create1stIntent.png)
 
 Select "Create intent" then give your intent a name -- "SearchFlights",
 then click "Add".
 
-![](media/image7.png){width="6.263888888888889in"
-height="3.5131944444444443in"}
+![](img/createSlots.png)
 
 Create slot type for capturing required information from the
 conversation. In this case we need to capture codes of the airports as
 examples
 
-![](media/image8.png){width="6.263888888888889in"
-height="3.3666666666666667in"}
+![](img/defineSlots.png)
 
 Name the Slot type "airportCodes", and select "Restrict to Slot values
 and Synonyms"
 
-![](media/image9.png){width="4.107373140857393in"
-height="3.864209317585302in"}
+![](img/slotsSamples.png)
 
 Create values per below, then click "Add slot to intent"
 
 (You may feel free to customize the locations / airports that you
 prefer, or using built-in slots)
 
-![](media/image10.png){width="4.106944444444444in"
-height="3.9239063867016624in"}
+![](img/configureFollowUpQuestions.png)
 
 Then back at the slot sections, for both origin and destination, you can
 use airportCodes that we have just created from the "Custom Slot", while
 for departureDate and returnDate, you can use the "built-in slot" by
 Amazon -- AMAZON.DATE. Also fill in the relevant Prompt.
 
-![](media/image11.png){width="6.263888888888889in"
-height="1.6923075240594925in"}
+![](img/.png)
 
 Input some sample sentences per below as "Sample utterances".
 

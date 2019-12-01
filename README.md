@@ -12,6 +12,8 @@ This sample will walk you through:
 
 3.  Spotlights of where the application sample code works with Lex
 
+
+
 ## Part 1. Building a Chat Bot with Amazon Lex
 
 Login to the AWS Console:
@@ -220,7 +222,7 @@ Also be aware that for "lexConfig" (line 101), remember to make sure the bot nam
 
 **2.  Through the response back from Lex (defined as "data" from line 112), the application can be developed to respond by different attributes.**
 
-![](img/codeData.png)
+![](img/codeLexData.png)
 
 data.inputTranscript (line 114):
 *The transcribed sentence from the user*
